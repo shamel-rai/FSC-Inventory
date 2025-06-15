@@ -4,6 +4,7 @@ import 'package:fsc_management/database/db_helper.dart';
 import 'package:fsc_management/screens/addproduct.dart';
 import 'package:fsc_management/widgets/custom_button.dart';
 import 'package:fsc_management/models/inventory_item.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Inventorypage extends StatefulWidget {
   @override
@@ -25,6 +26,92 @@ class _InventorypageState extends State<Inventorypage> {
     setState(() {
       _products = data.map((e) => InventoryItem.fromMap(e)).toList();
     });
+  }
+
+  void _showEditDialog(BuildContext context, InventoryItem product) {
+    final nameController = TextEditingController(text: product.name);
+    final priceController = TextEditingController(
+      text: product.price.toString(),
+    );
+    final stockController = TextEditingController(
+      text: product.stock.toString(),
+    );
+    String? newImagePath = product.imagePath;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Edit Product"),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  final picker = ImagePicker();
+                  final picked = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (picked != null) {
+                    newImagePath = picked.path;
+                  }
+                },
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: newImagePath != null
+                      ? Image.file(File(newImagePath!), fit: BoxFit.cover)
+                      : Icon(Icons.image),
+                ),
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: 'Product name'),
+              ),
+              TextField(
+                controller: priceController,
+                decoration: InputDecoration(labelText: "Price"),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: stockController,
+                decoration: InputDecoration(labelText: "Stock"),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final updatedItem = product.copyWith(
+                name: nameController.text.trim(),
+                price: double.tryParse(priceController.text) ?? product.price,
+                stock: int.tryParse(stockController.text) ?? product.stock,
+                imagePath: newImagePath,
+              );
+              await _dbHelper.updateProduct(
+                id: product.id!,
+                name: updatedItem.name,
+                price: updatedItem.price,
+                stock: updatedItem.stock,
+              );
+              Navigator.pop(context);
+              _fetchProducts();
+            },
+            child: Text('Save'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -203,8 +290,8 @@ class _InventorypageState extends State<Inventorypage> {
                             children: [
                               CustomButton(
                                 icon: Icons.edit_outlined,
-                                onPressed: () {
-                                  print("Edit");
+                                onPressed: () async {
+                                  _showEditDialog(context, prod);
                                 },
                               ),
                               SizedBox(height: 8),

@@ -32,4 +32,20 @@ class InventoryItem {
       imagePath: map['imagePath'],
     );
   }
+
+  InventoryItem copyWith({
+    int? id,
+    String? name,
+    double? price,
+    int? stock,
+    String? imagePath,
+  }) {
+    return InventoryItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      stock: stock ?? this.stock,
+      imagePath: imagePath ?? this.imagePath,
+    );
+  }
 }
