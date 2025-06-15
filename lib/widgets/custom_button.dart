@@ -9,8 +9,8 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 40,
-      height: 40,
+      width: 50,
+      height: 50,
       child: FloatingActionButton(
         onPressed: onPressed,
         child: Icon(icon, size: 18),

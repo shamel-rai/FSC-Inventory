@@ -48,7 +48,7 @@ class _AddProductState extends State<AddproductState> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Product $name added Successfully"),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.black,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -66,7 +66,8 @@ class _AddProductState extends State<AddproductState> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      appBar: CustomNavbar(),
+      backgroundColor: Colors.grey[100],
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(20),
@@ -81,22 +82,19 @@ class _AddProductState extends State<AddproductState> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  color: Colors.white,
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Icon(
-                          Icons.shopping_bag,
-                          size: 48,
-                          color: Colors.blue[700],
-                        ),
+                        Icon(Icons.shopping_bag, size: 48, color: Colors.black),
                         SizedBox(height: 10),
                         Text(
                           'Product Information',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -112,6 +110,7 @@ class _AddProductState extends State<AddproductState> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  color: Colors.white,
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
@@ -121,17 +120,19 @@ class _AddProductState extends State<AddproductState> {
                           controller: _nameController,
                           decoration: InputDecoration(
                             labelText: "Product Name",
+                            labelStyle: TextStyle(color: Colors.grey[600]),
                             prefixIcon: Icon(
                               Icons.inventory_2,
-                              color: Colors.blue[700],
+                              color: Colors.black,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey[400]!),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.blue[700]!,
+                                color: Colors.black,
                                 width: 2,
                               ),
                             ),
@@ -150,17 +151,19 @@ class _AddProductState extends State<AddproductState> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: 'Price',
+                            labelStyle: TextStyle(color: Colors.grey[600]),
                             prefixIcon: Icon(
                               Icons.attach_money,
-                              color: Colors.green[700],
+                              color: Colors.black,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey[400]!),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.blue[700]!,
+                                color: Colors.black,
                                 width: 2,
                               ),
                             ),
@@ -179,17 +182,19 @@ class _AddProductState extends State<AddproductState> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: 'Stock',
+                            labelStyle: TextStyle(color: Colors.grey[600]),
                             prefixIcon: Icon(
                               Icons.storage,
-                              color: Colors.orange[700],
+                              color: Colors.black,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey[400]!),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.blue[700]!,
+                                color: Colors.black,
                                 width: 2,
                               ),
                             ),
@@ -212,6 +217,7 @@ class _AddProductState extends State<AddproductState> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
+                  color: Colors.white,
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
@@ -221,7 +227,7 @@ class _AddProductState extends State<AddproductState> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
+                            color: Colors.black,
                           ),
                         ),
                         SizedBox(height: 15),
@@ -272,7 +278,7 @@ class _AddProductState extends State<AddproductState> {
                           icon: Icon(Icons.photo_library),
                           label: Text('Pick Image from Gallery'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[600],
+                            backgroundColor: Colors.grey[800],
                             foregroundColor: Colors.white,
                             padding: EdgeInsets.symmetric(
                               horizontal: 24,
@@ -304,13 +310,13 @@ class _AddProductState extends State<AddproductState> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[600],
+                      backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                       elevation: 6,
-                      shadowColor: Colors.green[200],
+                      shadowColor: Colors.grey[400],
                     ),
                   ),
                 ),

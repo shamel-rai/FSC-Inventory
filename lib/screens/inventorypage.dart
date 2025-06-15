@@ -195,8 +195,8 @@ class _InventorypageState extends State<Inventorypage> {
                         children: [
                           // Product Image
                           Container(
-                            width: 80,
-                            height: 80,
+                            width: 100,
+                            height: 120,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
@@ -236,7 +236,7 @@ class _InventorypageState extends State<Inventorypage> {
                                 Text(
                                   prod.name,
                                   style: TextStyle(
-                                    fontSize: 25,
+                                    fontSize: 30,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87,
                                   ),
@@ -256,7 +256,7 @@ class _InventorypageState extends State<Inventorypage> {
                                   child: Text(
                                     '\$${prod.price.toStringAsFixed(2)}',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black87,
                                     ),
@@ -274,7 +274,7 @@ class _InventorypageState extends State<Inventorypage> {
                                     Text(
                                       'Stock: ${prod.stock}',
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 20,
                                         color: Colors.grey[600],
                                         fontWeight: FontWeight.w500,
                                       ),
