@@ -26,18 +26,6 @@ class DbHelper {
         imagePath TEXT
       )
     ''');
-
-        // Biliing Table
-        await db.execute(''' 
-        CREATE TABLE billing (
-        id INTEGER PRIMARY KEY AUTOINCREMENT 
-        product_id INTEGER,
-        quantity INTEGER,
-        product_price INTEGER,
-        total_price REAL,
-        date TEXT
-        )
-    ''');
       },
     );
   }

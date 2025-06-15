@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fsc_management/screens/addproduct.dart';
+import 'package:fsc_management/screens/inventorypage.dart';
 import 'package:fsc_management/widgets/custom_bottomNav.dart';
 import 'package:fsc_management/widgets/custom_navBar.dart';
 
@@ -20,7 +22,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [HomeContent()];
+  final List<Widget> _pages = [HomeContent(), Inventorypage()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,8 +32,7 @@ class _HomepageState extends State<Homepage> {
         currentIndex: _selectedIndex,
         onTap: (int index) {
           setState(() {
-            _selectedIndex:
-            index;
+            _selectedIndex = index;
           });
         },
       ),
