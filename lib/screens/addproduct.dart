@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fsc_management/widgets/custom_navBar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fsc_management/database/db_helper.dart';
-import 'package:fsc_management/models/inventory_item.dart';
 
 class AddproductState extends StatefulWidget {
   @override

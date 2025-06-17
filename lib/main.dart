@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:fsc_management/models/token_order.dart';
 import 'package:fsc_management/screens/homepage.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
+List<TokenOrder> allTokens = [];
+
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
