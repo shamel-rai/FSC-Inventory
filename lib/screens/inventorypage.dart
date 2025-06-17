@@ -37,80 +37,87 @@ class _InventorypageState extends State<Inventorypage> {
       text: product.stock.toString(),
     );
     String? newImagePath = product.imagePath;
-
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Edit Product"),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              GestureDetector(
-                onTap: () async {
-                  final picker = ImagePicker();
-                  final picked = await picker.pickImage(
-                    source: ImageSource.gallery,
-                  );
-                  if (picked != null) {
-                    newImagePath = picked.path;
-                  }
-                },
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: Text("Edit Product"),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(
+                        source: ImageSource.gallery,
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          newImagePath = picked.path;
+                        });
+                      }
+                    },
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: newImagePath != null
+                          ? Image.file(File(newImagePath!), fit: BoxFit.cover)
+                          : Icon(Icons.image),
+                    ),
                   ),
-                  child: newImagePath != null
-                      ? Image.file(File(newImagePath!), fit: BoxFit.cover)
-                      : Icon(Icons.image),
-                ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: 'Product name'),
+                  ),
+                  TextField(
+                    controller: priceController,
+                    decoration: InputDecoration(labelText: "Price"),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: stockController,
+                    decoration: InputDecoration(labelText: "Stock"),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
               ),
-              SizedBox(height: 12),
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Product name'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
               ),
-              TextField(
-                controller: priceController,
-                decoration: InputDecoration(labelText: "Price"),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: stockController,
-                decoration: InputDecoration(labelText: "Stock"),
-                keyboardType: TextInputType.number,
+              ElevatedButton(
+                onPressed: () async {
+                  final updatedItem = product.copyWith(
+                    name: nameController.text.trim(),
+                    price:
+                        double.tryParse(priceController.text) ?? product.price,
+                    stock: int.tryParse(stockController.text) ?? product.stock,
+                    imagePath: newImagePath,
+                  );
+                  await _dbHelper.updateProduct(
+                    id: product.id!,
+                    name: updatedItem.name,
+                    price: updatedItem.price,
+                    stock: updatedItem.stock,
+                    imagePath: updatedItem.imagePath,
+                  );
+                  Navigator.pop(context);
+                  _fetchProducts();
+                },
+                child: Text('Save'),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final updatedItem = product.copyWith(
-                name: nameController.text.trim(),
-                price: double.tryParse(priceController.text) ?? product.price,
-                stock: int.tryParse(stockController.text) ?? product.stock,
-                imagePath: newImagePath,
-              );
-              await _dbHelper.updateProduct(
-                id: product.id!,
-                name: updatedItem.name,
-                price: updatedItem.price,
-                stock: updatedItem.stock,
-              );
-              Navigator.pop(context);
-              _fetchProducts();
-            },
-            child: Text('Save'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
