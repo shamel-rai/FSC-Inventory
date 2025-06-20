@@ -22,9 +22,9 @@ class _InventorypageState extends State<Inventorypage> {
   }
 
   Future<void> _fetchProducts() async {
-    final data = await _dbHelper.getAllProducts();
+    final data = await _dbHelper.getAllIventoryItems();
     setState(() {
-      _products = data.map((e) => InventoryItem.fromMap(e)).toList();
+      _products = data;
     });
   }
 
@@ -102,13 +102,7 @@ class _InventorypageState extends State<Inventorypage> {
                     stock: int.tryParse(stockController.text) ?? product.stock,
                     imagePath: newImagePath,
                   );
-                  await _dbHelper.updateProduct(
-                    id: product.id!,
-                    name: updatedItem.name,
-                    price: updatedItem.price,
-                    stock: updatedItem.stock,
-                    imagePath: updatedItem.imagePath,
-                  );
+                  await _dbHelper.updateInventoryItem(updatedItem);
                   Navigator.pop(context);
                   _fetchProducts();
                 },
@@ -305,7 +299,7 @@ class _InventorypageState extends State<Inventorypage> {
                               CustomButton(
                                 icon: Icons.delete_outline,
                                 onPressed: () async {
-                                  await _dbHelper.deleteProduct(prod.id!);
+                                  await _dbHelper.deleteInventoryItem(prod.id!);
                                   _fetchProducts();
                                 },
                               ),

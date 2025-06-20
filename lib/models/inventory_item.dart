@@ -2,7 +2,7 @@ class InventoryItem {
   final int? id;
   final String name;
   final double price;
-  final int stock;
+  int stock;
   final String? imagePath;
 
   InventoryItem({

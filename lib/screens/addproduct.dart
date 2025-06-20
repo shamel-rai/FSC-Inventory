@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fsc_management/models/inventory_item.dart';
 import 'package:fsc_management/widgets/custom_navBar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fsc_management/database/db_helper.dart';
@@ -36,8 +37,16 @@ class _AddProductState extends State<AddproductState> {
       double price = double.parse(_priceController.text);
       int stock = int.parse(_stockController.text);
 
+      InventoryItem item = InventoryItem(
+        name: name,
+        price: price,
+        stock: stock,
+        imagePath: _image?.path,
+      );
+
       // Save to DB
-      await _dbHelper.addProduct(
+      await _dbHelper.insertInventoryItem(
+        item,
         name: name,
         price: price,
         stock: stock,
