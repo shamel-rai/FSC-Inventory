@@ -1,48 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:fsc_management/models/token_order.dart';
-import 'package:fsc_management/main.dart';
-import 'package:fsc_management/screens/billingpage.dart';
+import 'package:fsc_management/screens/tokenbilling.dart';
+import 'package:fsc_management/widgets/custom_button.dart';
+import 'package:fsc_management/widgets/custom_navBar.dart';
 
-class TokenListPage extends StatefulWidget {
-  @override
-  _TokenListPageState createState() => _TokenListPageState();
+class Tokenlistpage extends StatefulWidget {
+  State<Tokenlistpage> createState() => _TokenListPageState();
 }
 
-class _TokenListPageState extends State<TokenListPage> {
-  int tokenCounter = 1;
+class _TokenListPageState extends State<Tokenlistpage> {
+  List<TokenOrder> _tokens = [];
+  int _nextToken = 1;
 
-  void createNewToken() {
+  void _createNewToken() {
     setState(() {
-      allTokens.add(TokenOrder(tokenNumber: tokenCounter++, items: []));
+      _tokens.add(TokenOrder(token: _nextToken, items: []));
+      _nextToken++;
     });
+  }
+
+  void _openBilling(TokenOrder order) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => TokenBillingPage(tokenOrder: order)),
+    );
+
+    // Remove token from the list if paid
+    if (result == true) {
+      setState(() {
+        _tokens.remove(order);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Restaurant Tokens")),
+      // appBar: CustomNavbar(),
       body: ListView.builder(
-        itemCount: allTokens.length,
-        itemBuilder: (context, index) {
-          final token = allTokens[index];
+        itemCount: _tokens.length,
+        itemBuilder: (_, index) {
+          final token = _tokens[index];
           return ListTile(
-            title: Text("Token ${token.tokenNumber}"),
-            subtitle: Text("Total: \$${token.total.toStringAsFixed(2)}"),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BillingPage(tokenOrder: token),
-                ),
-              ).then((_) => setState(() {})); // Refresh on return
-            },
+            title: Text("Token: ${token.token}"),
+            subtitle: Text("Items: ${token.items.length}"),
+            trailing: Icon(Icons.arrow_forward),
+            onTap: () => _openBilling(token),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createNewToken,
-        child: Icon(Icons.add),
-        tooltip: "Create New Token",
+      floatingActionButton: CustomButton(
+        icon: Icons.add,
+        onPressed: _createNewToken,
       ),
     );
   }

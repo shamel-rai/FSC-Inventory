@@ -82,6 +82,22 @@ class DbHelper {
     return maps.map((map) => InventoryItem.fromMap(map)).toList();
   }
 
+  Future<InventoryItem?> getItemByName(String name) async {
+    final db = await database;
+    final result = await db.query(
+      'inventory',
+      where: 'name = ?',
+      whereArgs: [name],
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      return InventoryItem.fromMap(result.first);
+    } else {
+      return null;
+    }
+  }
+
   // Paid Orders
   Future<void> insertPaidOrder({
     required int token,

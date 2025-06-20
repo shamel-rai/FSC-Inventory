@@ -51,7 +51,7 @@ class _BillingPageState extends State<BillingPage> {
     final token = widget.tokenOrder;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Token ${token.tokenNumber}")),
+      appBar: AppBar(title: Text("Token ${token.token}")),
       body: Column(
         children: [
           Expanded(
