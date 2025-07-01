@@ -309,7 +309,7 @@ class _AddProductState extends State<AddproductState> {
                 Container(
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: _submitProduct,
+                    onPressed: (_submitProduct),
                     child: Text(
                       'Add Product',
                       style: TextStyle(
