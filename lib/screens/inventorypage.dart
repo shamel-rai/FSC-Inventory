@@ -22,7 +22,7 @@ class _InventorypageState extends State<Inventorypage> {
   }
 
   Future<void> _fetchProducts() async {
-    final data = await _dbHelper.getAllIventoryItems();
+    final data = await _dbHelper.getallInventoryItems();
     setState(() {
       _products = data;
     });
@@ -255,7 +255,7 @@ class _InventorypageState extends State<Inventorypage> {
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
-                                    '\$${prod.price.toStringAsFixed(2)}',
+                                    'रू ${prod.price.toStringAsFixed(2)}',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,

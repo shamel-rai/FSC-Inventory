@@ -22,7 +22,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [HomeContent(), Inventorypage(), Tokenlistpage()];
+  final List<Widget> _pages = [HomeContent(), Inventorypage()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

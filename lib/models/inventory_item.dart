@@ -15,21 +15,21 @@ class InventoryItem {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'name': name,
-      'price': price,
-      'stock': stock,
-      'imagePath': imagePath,
+      'product_id': id,
+      'product_name': name,
+      'product_price': price,
+      'product_stock': stock,
+      'product_image': imagePath,
     };
   }
 
   factory InventoryItem.fromMap(Map<String, dynamic> map) {
     return InventoryItem(
-      id: map['id'],
-      name: map['name'],
-      price: map['price'],
-      stock: map['stock'],
-      imagePath: map['imagePath'],
+      id: map['product_id'],
+      name: map['product_name'],
+      price: map['product_price'],
+      stock: map['product_stock'],
+      imagePath: map['product_image'],
     );
   }
 

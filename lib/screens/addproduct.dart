@@ -45,13 +45,13 @@ class _AddProductState extends State<AddproductState> {
       );
 
       // Save to DB
-      await _dbHelper.insertInventoryItem(
-        item,
+      final items = InventoryItem(
         name: name,
         price: price,
         stock: stock,
         imagePath: _image?.path,
       );
+      await _dbHelper.insertInventoryItem(items);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -309,7 +309,7 @@ class _AddProductState extends State<AddproductState> {
                 Container(
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: (_submitProduct),
+                    onPressed: _submitProduct,
                     child: Text(
                       'Add Product',
                       style: TextStyle(

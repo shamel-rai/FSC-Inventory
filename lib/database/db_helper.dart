@@ -17,19 +17,19 @@ class DbHelper {
 
   Future<Database> _initDB() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'restaurant_billing.db');
+    final path = join(dbPath, 'family_sekuwa_corner.db');
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE inventory(
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT,
-          price REAL,
-          stock INTEGER,
-          imagePath TEXT
+          CREATE TABLE Inventory_Table(
+          product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          product_name TEXT,
+          product_price REAL,
+          product_stock INTEGER,
+          product_image TEXT
           )
 ''');
         await db.execute('''
@@ -45,57 +45,56 @@ class DbHelper {
     );
   }
 
-  // Inventory Function
-  Future<void> insertInventoryItem(
-    InventoryItem item, {
-    required String name,
-    required double price,
-    required int stock,
-    String? imagePath,
-  }) async {
+  // ------------------INVENTORY FUNCTION------------------------
+
+  // ---------------CREATE INVENTORY-----------------------
+  Future<void> insertInventoryItem(InventoryItem item) async {
     final db = await database;
     await db.insert(
-      'inventory',
+      'Inventory_table',
       item.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
+  // ---------------READ INVENTORY-----------------------
+  Future<List<InventoryItem>> getallInventoryItems() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query("Inventory_Table");
+    return maps.map((e) => InventoryItem.fromMap(e)).toList();
+  }
+
+  // ---------------DELETE INVENTORY-----------------------
+  Future<void> deleteInventoryItem(int id) async {
+    final db = await database;
+    await db.delete(
+      "Inventory_Table",
+      where: "product_id = ?",
+      whereArgs: [id],
+    );
+  }
+
+  // ---------------UPDATE INVENTORY-----------------------
   Future<void> updateInventoryItem(InventoryItem item) async {
     final db = await database;
     await db.update(
-      'inventory',
+      'Inventory_Table',
       item.toMap(),
-      where: 'id=?',
+      where: 'product_id=?',
       whereArgs: [item.id],
     );
   }
 
-  Future<void> deleteInventoryItem(int id) async {
+  // ---------------GET A SINGLE INVENTORY ITEM-----------------------
+  Future<InventoryItem?> getInventoryItemById(int id) async {
     final db = await database;
-    await db.delete('inventory', where: 'id=?', whereArgs: [id]);
-  }
-
-  Future<List<InventoryItem>> getAllIventoryItems() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('inventory');
-    return maps.map((map) => InventoryItem.fromMap(map)).toList();
-  }
-
-  Future<InventoryItem?> getItemByName(String name) async {
-    final db = await database;
-    final result = await db.query(
-      'inventory',
-      where: 'name = ?',
-      whereArgs: [name],
+    final List<Map<String, dynamic>> maps = await db.query(
+      "Inventory_Table",
+      where: "product_id =?",
+      whereArgs: [id],
       limit: 1,
     );
-
-    if (result.isNotEmpty) {
-      return InventoryItem.fromMap(result.first);
-    } else {
-      return null;
-    }
+    return null;
   }
 
   // Paid Orders

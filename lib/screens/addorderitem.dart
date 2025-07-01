@@ -28,7 +28,7 @@ class _AddOrderItemDialogState extends State<AddOrderItem> {
   }
 
   Future<void> _loadInventory() async {
-    final items = await DbHelper().getAllIventoryItems();
+    final items = await DbHelper().getallInventoryItems();
     setState(() {
       _inventory = items;
     });
