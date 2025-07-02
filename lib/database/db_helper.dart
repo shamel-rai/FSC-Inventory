@@ -32,13 +32,34 @@ class DbHelper {
           product_image TEXT
           )
 ''');
+
         await db.execute('''
-        CREATE TABLE paid_orders(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        token INTEGER,
-        items TEXT, --JSON
-        total REAL,
-        date TEXT
+        CREATE TABLE Order_Table(
+        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        paid INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        payment_mode TEXT CHECK(payment_mode IN ('cash', 'qr'))
+        )
+''');
+
+        await db.execute('''
+        CREATE TABLE Order_Product(
+        order_product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER,
+        product_id INTEGER,
+        quantity INTEGER,
+        price_at_order REAL,
+        FOREIGN KEY(order_id) REFERENCES Order_Table(order_id),
+        FOREIGN KEY(product_id) REFERENCES Inventory_Table(product_id)
+        )
+''');
+
+        await db.execute('''
+        CREATE TABLE Paid_Table (
+        payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        payment_date TEXT,
+        order_id INTEGER,
+        FOREIGN KEY(order_id) REFERENCES Order_Table(order_id)
         )
 ''');
       },
@@ -51,7 +72,7 @@ class DbHelper {
   Future<void> insertInventoryItem(InventoryItem item) async {
     final db = await database;
     await db.insert(
-      'Inventory_table',
+      'Inventory_Table',
       item.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -94,32 +115,182 @@ class DbHelper {
       whereArgs: [id],
       limit: 1,
     );
-    return null;
+    if (maps.isNotEmpty) {
+      return InventoryItem.fromMap(maps.first);
+    } else {
+      return null;
+    }
   }
 
-  // Paid Orders
-  Future<void> insertPaidOrder({
-    required int token,
-    required List<Map<String, dynamic>> items,
-    required double total,
-    required String date,
+  // ------------------ORDER FUNCTION------------------------
+
+  // -----------------CREATE ORDER-----------------
+  Future<int> createOrder() async {
+    final db = await database;
+    return await db.insert('Order_Table', {'paid': 0});
+  }
+
+  // -----------------GET ALL ORDERS-----------------
+  Future<List<Map<String, dynamic>>> getAllOrders() async {
+    final db = await database;
+    return await db.query('Order_Table');
+  }
+
+  // -----------------GET ALL PAID/UNPAID ORDER-----------------
+  Future<List<Map<String, dynamic>>> getOrdersByPaidStatus(bool isPaid) async {
+    final db = await database;
+    return await db.query(
+      'Order_Table',
+      where: 'paid = ?',
+      whereArgs: [isPaid ? 1 : 0],
+    );
+  }
+
+  // -----------------GET ONE ORDER BY ID-----------------
+  Future<Map<String, dynamic>?> getOrderByID(int orderId) async {
+    final db = await database;
+    final result = await db.query(
+      'Order_Table',
+      where: 'order_id = ?',
+      whereArgs: [orderId],
+    );
+    return result.isNotEmpty ? result.first : null;
+  }
+
+  // -----------------DELETE ORDER-----------------
+  Future<void> deleteOrder(int orderId) async {
+    final db = await database;
+
+    //Get all item in order
+    final items = await db.query(
+      'Order_Product',
+      where: 'order_id = ?',
+      whereArgs: [orderId],
+    );
+
+    // Restore Stock
+    for (final item in items) {
+      final productId = item['product_id'] as int;
+      final quantity = item['quantity'] as int;
+
+      await db.rawUpdate(
+        '''
+  UPDATE Inventory_Table
+  SET product_stock = product_stock + ?,
+  WHERE product_id = ?
+''',
+        [quantity, productId],
+      );
+    }
+
+    // Delete the order-product relation first
+    await db.delete(
+      'Order_Product',
+      where: 'order_id = ?',
+      whereArgs: [orderId],
+    );
+
+    //Delete payment if Exists
+    await db.delete('Paid_Table', where: 'order_id = ?', whereArgs: [orderId]);
+
+    //Finally delete the order
+    await db.delete('Order_Table', where: 'order_id = ?', whereArgs: [orderId]);
+  }
+
+  // -----------------INSERT ORDER-----------------
+  Future<void> insertOrderProduct({
+    required int orderId,
+    required int productId,
+    required int quantity,
+    required double priceAtOrder,
   }) async {
     final db = await database;
-    await db.insert('paid_order', {
-      'token': token,
-      "items": jsonEncode(items),
-      'total': total,
-      'date': date,
+
+    await db.insert("Order_Product", {
+      "order_id": orderId,
+      "product_id": productId,
+      "quantity": quantity,
+      'price_at_order': priceAtOrder,
+    });
+
+    // Decrease the stock in the Inventory_Table
+    await db.rawUpdate(
+      '''
+    UPDATE Inventory_Table 
+    SET product_stock = product_stock - ? 
+      WHERE product_id = ?
+''',
+      [quantity, productId],
+    );
+  }
+
+  // -----------------TOTAL PRICE ORDER-----------------
+  Future<double> getOrderTotal(int orderId) async {
+    final db = await database;
+    final result = await db.rawQuery(
+      '''
+    SELECT SUM(quantity * price_at_order) as total 
+    FROM Order_Product 
+    WHERE order_id = ?
+''',
+      [orderId],
+    );
+    return result.first['total'] != null
+        ? result.first['total'] as double
+        : 0.0;
+  }
+
+  // ------------------ORDER BY TIMESTAMP------------------------
+  Future<List<Map<String, dynamic>>> getOrderByDateRange(
+    String start,
+    String end,
+  ) async {
+    final db = await database;
+
+    return await db.rawQuery(
+      '''
+  SELECT * FROM Order_Table 
+  WHERE created_at BETWEEN ? AND ?
+''',
+      [start, end],
+    );
+  }
+
+  // -----------------PAID ORDER-----------------
+  Future<void> markOrderAsPaid(int orderId) async {
+    final db = await database;
+
+    await db.update(
+      'Order_Table',
+      {"paid": 1},
+      where: 'order_id =?',
+      whereArgs: [orderId],
+    );
+
+    await db.insert("Paid_Table", {
+      'order_id': orderId,
+      'payment_date': DateTime.now().toIso8601String(),
     });
   }
 
-  Future<List<Map<String, dynamic>>> getPaidOrdersByDate(String date) async {
+  // -----------------UPDATE THE ORDER STATUS-----------------
+  Future<void> updateOrderPaidStatus(int orderId, bool isPaid) async {
     final db = await database;
-    final result = await db.query(
-      'paid_order',
-      where: 'date =?',
-      whereArgs: [date],
+
+    await db.update(
+      'Order_Table',
+      {'paid': isPaid ? 1 : 0},
+      where: 'order_id = ?',
+      whereArgs: [orderId],
     );
-    return result;
+
+    if (!isPaid) {
+      //Option to delete the payment record
+      await db.delete(
+        'Paid_Table',
+        where: 'order_id = ?',
+        whereArgs: [orderId],
+      );
+    }
   }
 }
