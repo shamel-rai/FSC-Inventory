@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fsc_management/screens/inventorypage.dart';
-import 'package:fsc_management/screens/tokenListPage.dart';
+import 'package:fsc_management/screens/tokenpage.dart';
 import 'package:fsc_management/widgets/custom_bottomNav.dart';
 import 'package:fsc_management/widgets/custom_navBar.dart';
 
@@ -22,7 +22,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [HomeContent(), Inventorypage()];
+  final List<Widget> _pages = [HomeContent(), Inventorypage(), Tokenpage()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

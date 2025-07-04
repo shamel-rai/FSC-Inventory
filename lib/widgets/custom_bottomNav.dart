@@ -26,9 +26,19 @@ class CustomBottomnav extends StatelessWidget {
           label: "Inventory",
         ),
         NavigationDestination(
-          selectedIcon: Icon(Icons.money_off_csred),
+          selectedIcon: Icon(Icons.playlist_add_check_circle_rounded),
           icon: Icon(Icons.attach_money_outlined),
-          label: "Billing",
+          label: "Order",
+        ),
+        NavigationDestination(
+          selectedIcon: Icon(Icons.history_sharp),
+          icon: Icon(Icons.history_sharp),
+          label: "Order History",
+        ),
+        NavigationDestination(
+          selectedIcon: Icon(Icons.receipt_long_sharp),
+          icon: Icon(Icons.receipt_rounded),
+          label: "Receipt",
         ),
       ],
     );

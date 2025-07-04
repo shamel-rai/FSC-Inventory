@@ -36,6 +36,7 @@ class DbHelper {
         await db.execute('''
         CREATE TABLE Order_Table(
         order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        token INTEGER,
         paid INTEGER DEFAULT 0,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         payment_mode TEXT CHECK(payment_mode IN ('cash', 'qr'))
@@ -125,15 +126,65 @@ class DbHelper {
   // ------------------ORDER FUNCTION------------------------
 
   // -----------------CREATE ORDER-----------------
-  Future<int> createOrder() async {
+  Future<int> createOrder({
+    required int token,
+    required String paymentMode,
+  }) async {
     final db = await database;
-    return await db.insert('Order_Table', {'paid': 0});
+    return await db.insert('Order_Table', {
+      'token': token,
+      'paid': 0,
+      'created_at': DateTime.now().toIso8601String(),
+      'payment_mode': paymentMode,
+    });
   }
 
   // -----------------GET ALL ORDERS-----------------
   Future<List<Map<String, dynamic>>> getAllOrders() async {
     final db = await database;
     return await db.query('Order_Table');
+  }
+
+  // -----------------GET ALL ORDERS-----------------
+  Future<List<Map<String, dynamic>>> getAllTokens() async {
+    final db = await database;
+    return await db.rawQuery('''
+  SELECT DISTINCT token FROM Order_Table ORDER BY token DESC
+''');
+  }
+
+  // -----------------SEARCH TOKEN -----------------
+  Future<List<Map<String, dynamic>>> searchTokens(String query) async {
+    final db = await database;
+    return await db.rawQuery(
+      '''
+      SELECT DISTINCT token FROM Order_Table 
+      WHERE token LIKE ?
+      ORDER BY token DESC
+''',
+      ['%$query%'],
+    );
+  }
+
+  // -----------------GET ORDER BY TOKEN-----------------
+  Future<List<Map<String, dynamic>>> getOrdersByToken(int token) async {
+    final db = await database;
+    return await db.query(
+      'Order_Table',
+      where: 'token = ?',
+      whereArgs: [token],
+      orderBy: 'created_at DESC',
+    );
+  }
+
+  // -----------------AUTO TOKEN INCREMENT-----------------
+  Future<int> getNextToken() async {
+    final db = await database;
+    final result = await db.rawQuery(
+      "SELECT MAX(token) as max FROM Order_Table",
+    );
+    final maxToken = result.first['max'] as int?;
+    return (maxToken ?? 100) + 1;
   }
 
   // -----------------GET ALL PAID/UNPAID ORDER-----------------
@@ -176,7 +227,7 @@ class DbHelper {
       await db.rawUpdate(
         '''
   UPDATE Inventory_Table
-  SET product_stock = product_stock + ?,
+  SET product_stock = product_stock + ?
   WHERE product_id = ?
 ''',
         [quantity, productId],
