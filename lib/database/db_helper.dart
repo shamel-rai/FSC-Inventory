@@ -39,7 +39,7 @@ class DbHelper {
         token INTEGER,
         paid INTEGER DEFAULT 0,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        payment_mode TEXT CHECK(payment_mode IN ('cash', 'qr'))
+        payment_mode TEXT CHECK(payment_mode IN ('cash', 'qr')) DEFAULT NULL
         )
 ''');
 
@@ -126,17 +126,24 @@ class DbHelper {
   // ------------------ORDER FUNCTION------------------------
 
   // -----------------CREATE ORDER-----------------
-  Future<int> createOrder({
-    required int token,
-    required String paymentMode,
-  }) async {
+  Future<int> createOrder({required int token}) async {
     final db = await database;
     return await db.insert('Order_Table', {
       'token': token,
       'paid': 0,
       'created_at': DateTime.now().toIso8601String(),
-      'payment_mode': paymentMode,
     });
+  }
+
+  // -----------------GET ALL ORDERS-----------------
+  Future<void> setPaymentMethod(int orderId, String paymentMethod) async {
+    final db = await database;
+    await db.update(
+      'Order_Table',
+      {'payment_mode': paymentMethod},
+      where: 'order_id = ?',
+      whereArgs: [orderId],
+    );
   }
 
   // -----------------GET ALL ORDERS-----------------
@@ -185,6 +192,59 @@ class DbHelper {
     );
     final maxToken = result.first['max'] as int?;
     return (maxToken ?? 100) + 1;
+  }
+
+  // -----------------DELETE TOKEN -----------------
+  Future<void> deletToken(int token) async {
+    final db = await database;
+
+    // Get all orders from the token
+    final orders = await db.query(
+      'Order_Table',
+      where: 'token = ?',
+      whereArgs: [token],
+    );
+
+    for (final order in orders) {
+      final orderId = order['order_id'] as int;
+      // restore stock
+      final items = await db.query(
+        'Order_Product',
+        where: 'order_id = ?',
+        whereArgs: [orderId],
+      );
+
+      for (final item in items) {
+        final productId = item['product_id'] as int;
+        final quantity = item['quantity'] as int;
+
+        await db.rawQuery(
+          '''
+          UPDATE Inventory_Table
+          SET product_stock = product_stock + ?
+          WHERE product_id = ?
+          ''',
+          [quantity, productId],
+        );
+      }
+
+      // Delete from Order_Product
+      await db.delete(
+        'Order_Product',
+        where: 'order_id = ?',
+        whereArgs: [orderId],
+      );
+
+      // Delete From Paid Table
+      await db.delete(
+        'Paid_Table',
+        where: 'order_id = ?',
+        whereArgs: [orderId],
+      );
+    }
+
+    // Delte From Order_Table
+    await db.delete('Order_Table', where: 'token = ?', whereArgs: [token]);
   }
 
   // -----------------GET ALL PAID/UNPAID ORDER-----------------
