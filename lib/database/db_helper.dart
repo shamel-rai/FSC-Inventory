@@ -384,6 +384,25 @@ class DbHelper {
     });
   }
 
+  //
+  Future<List<Map<String, dynamic>>> getOrderedItemByToken(int token) async {
+    final db = await database;
+    return await db.rawQuery(
+      '''
+      SELECT
+      i.product_name,
+      i.product_image,
+      op.quantity,
+      op.price_at_order
+      FROM Order_Table o
+      JOIN Order_Product op ON o.order_id = op.order_id
+      JOIN Inventory_Table i ON i.product_id = op.product_id
+      WHERE o.token = ?
+      ''',
+      [token],
+    );
+  }
+
   // -----------------UPDATE THE ORDER STATUS-----------------
   Future<void> updateOrderPaidStatus(int orderId, bool isPaid) async {
     final db = await database;
